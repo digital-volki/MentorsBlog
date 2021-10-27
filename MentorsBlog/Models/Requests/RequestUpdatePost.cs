@@ -1,32 +1,28 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace MentorsBlog.Models.Responses
+namespace MentorsBlog.Models.Requests
 {
-    public record PostResponse
+    public record RequestUpdatePost
     {
-        /// <summary>
-        /// Post id
-        /// </summary>
-        public Guid Id { get; init; }
-        
         /// <summary>
         /// Title of the post
         /// </summary>
+        [Required]
+        [MaxLength(200)]
         public string Title { get; init; }
-        
+
         /// <summary>
         /// Preview of the post 
         /// </summary>
+        [Required]
+        [MaxLength(2000)]
         public string Preview { get; init; }
-        
+
         /// <summary>
         /// The content of the post
         /// </summary>
+        [Required]
+        [MaxLength(20000)]
         public string Body { get; init; }
-        
-        /// <summary>
-        /// Date the post was created
-        /// </summary>
-        public DateTime PublishDate { get; init; }
     }
 }

@@ -1,45 +1,53 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using MentorsBlog.Models.Requests;
+using Microsoft.AspNetCore.Http;
 
 namespace MentorsBlog.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/user")]
     [ApiController]
-    public class UserController : ControllerBase
+    [Produces("application/json")]
+    public class UserController : BlogControllerBase
     {
-        // GET: api/<UserController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        public UserController()
         {
-            return new string[] { "value1", "value2" };
+            
         }
-
-        // GET api/<UserController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<UserController>
+        
+        /// <summary>
+        /// Authorize in account
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /user/auth
+        ///     {
+        ///        "Nickname": "admin",
+        ///        "Password": "admin"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="request">Incoming data for authorize</param>
+        /// <returns>Authentication token</returns>
+        /// <response code="200">Returns the authentication token</response>
+        /// <response code="400">Invalid input data</response>     
+        /// <response code="401">Unauthorized</response>
+        [Route("auth")]
         [HttpPost]
-        public void Post([FromBody] string value)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public ActionResult<string> Authorize([FromBody, Required] RequestAuthorize request)
         {
-        }
+            var token = string.Empty;
 
-        // PUT api/<UserController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<UserController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized();
+            }
+            
+            return Ok(token);
         }
     }
 }
