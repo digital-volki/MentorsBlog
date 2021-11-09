@@ -1,12 +1,27 @@
 using System;
 using System.IO;
 using System.Reflection;
-using MentorsBlog.Core.Web;
+using System.Text;
+using MentorsBlog.Application.Domain;
+using MentorsBlog.Application.Domain.Interfaces;
+using MentorsBlog.Application.Service;
+using MentorsBlog.Application.Service.Interfaces;
+using MentorsBlog.Core.Common;
+using MentorsBlog.Core.Common.Extensions;
+using MentorsBlog.Core.Common.Interfaces;
+using MentorsBlog.Core.Common.Models;
+using MentorsBlog.Core.DataAccess;
+using MentorsBlog.Core.DataAccess.Intefaces;
+using MentorsBlog.Core.Web.Auth;
+using MentorsBlog.Core.Web.Exceptions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace MentorsBlog
@@ -18,10 +33,49 @@ namespace MentorsBlog
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            CommonRegistration(services);
+            DatabaseRegistration(services);
+            ServicesRegistration(services);
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsLocal())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MentorsBlog v1"));
+            }
+
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+            
+            app.UseExceptionHandlerMiddleware();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+
+        private void CommonRegistration(IServiceCollection services)
+        {
+            services.AddSingleton<ISettings, Settings>();
+            var settings = services.BuildServiceProvider().GetService<ISettings>() 
+                           ?? throw new NullReferenceException("Settings resolve failed");
+
+            var tokens = settings.GetSection<AppSettings>(nameof(AppSettings)).Tokens;
+            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -68,27 +122,52 @@ namespace MentorsBlog
                 
                 c.OperationFilter<AuthOperationAttribute>();
             });
+            
+            services.AddHttpContextAccessor()
+                .AddCors()
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = tokens.Authenticate.Issuer,
+                        ValidateAudience = true,
+                        ValidAudience = tokens.Authenticate.Audience,
+                        ValidateLifetime = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokens.Authenticate.Secret)),
+                        ValidateIssuerSigningKey = true
+                    };
+                });
         }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        
+        private void DatabaseRegistration(IServiceCollection services)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MentorsBlog v1"));
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            var settings = services.BuildServiceProvider().GetService<ISettings>() 
+                           ?? throw new NullReferenceException("Settings resolve failed");
+            var connectionStrings = settings.GetSection<AppSettings>(nameof(AppSettings)).ConnectionStrings;
+            
+            services
+                .AddDbContext<IDataContext, DataContext>(options =>
+                    options.UseNpgsql(connectionStrings.DbConnection));
+        }
+        
+        private void ServicesRegistration(IServiceCollection services)
+        {
+            services
+                .AddTransient<IPostService, PostService>()
+                .AddTransient<ICommentService, CommentService>()
+                .AddTransient<IUserService, UserService>();
+            
+            services
+                .AddScoped<IPostDomain, PostDomain>()
+                .AddScoped<ICommentDomain, CommentDomain>()
+                .AddScoped<IUserDomain, UserDomain>();
         }
     }
 }

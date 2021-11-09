@@ -2,7 +2,7 @@
 
 namespace MentorsBlog.Models.Requests
 {
-    public record RequestAuthorize
+    public record RequestRegistration
     {
         /// <summary>
         /// Account nickname

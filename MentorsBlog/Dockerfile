@@ -10,15 +10,17 @@ WORKDIR /src
 COPY ["MentorsBlog/MentorsBlog.csproj", "MentorsBlog/"]
 COPY ["MentorsBlog.Core.Common/MentorsBlog.Core.Common.csproj", "MentorsBlog.Core.Common/"]
 COPY ["MentorsBlog.Core.Web/MentorsBlog.Core.Web.csproj", "MentorsBlog.Core.Web/"]
+COPY ["MentorsBlog.Core.DataAccess/MentorsBlog.Core.DataAccess.csproj", "MentorsBlog.Core.DataAccess/"]
 COPY ["MentorsBlog.Application.Service/MentorsBlog.Application.Service.csproj", "MentorsBlog.Application.Service/"]
+COPY ["MentorsBlog.Application.Domain/MentorsBlog.Application.Domain.csproj", "MentorsBlog.Application.Domain/"]
 RUN dotnet restore "MentorsBlog/MentorsBlog.csproj"
 COPY . .
 WORKDIR "/src/MentorsBlog"
-RUN ASPNETCORE_ENVIRONMENT="dev" \
+RUN ASPNETCORE_ENVIRONMENT="prod" \
     dotnet build "MentorsBlog.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN ASPNETCORE_ENVIRONMENT="dev" \
+RUN ASPNETCORE_ENVIRONMENT="prod" \
     dotnet publish "MentorsBlog.csproj" -c Release -o /app/publish
 
 FROM base AS final

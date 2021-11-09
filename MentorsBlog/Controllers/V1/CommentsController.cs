@@ -1,21 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using MentorsBlog.Application.Service.Interfaces;
+using MentorsBlog.Mappers;
 using MentorsBlog.Models.Requests;
 using MentorsBlog.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
-namespace MentorsBlog.Controllers
+namespace MentorsBlog.Controllers.V1
 {
     [Route("api/v1/comments")]
     [ApiController]
     [Produces("application/json")]
     public class CommentsController : BlogControllerBase
     {
-        public CommentsController()
+        private readonly ICommentService _commentService;
+
+        public CommentsController(ICommentService commentService)
         {
-            
+            _commentService = commentService;
         }
 
         /// <summary>
@@ -26,6 +32,7 @@ namespace MentorsBlog.Controllers
         ///
         ///     POST /comments
         ///     {
+        ///        "PostId": "13497b8d-3588-4826-9f87-d5ef0bdb5644"
         ///        "ParentId": null,
         ///        "Preview": "Anon without tyan 228",
         ///        "Body": "I'm first!"
@@ -34,23 +41,19 @@ namespace MentorsBlog.Controllers
         /// </remarks>
         /// <param name="request">Incoming data for creating a comment</param>
         /// <returns>Created comment</returns>
-        /// <response code="200">Returns the id of the created post</response>
+        /// <response code="200">Returns the model of the created comment</response>
         /// <response code="400">Invalid input data</response>
         /// <response code="500">Failed to create comment</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<CommentResponse> CreateComment(RequestCreateComment request)
+        public ActionResult<CommentResponse> CreateComment([FromBody, Required] RequestCreateComment request)
         {
-            var comment = new object(); 
-            
-            if (comment == null)
-            {
-                return Problem();
-            }
-            
-            return Ok(new CommentResponse());
+            var comment = _commentService.Create(request.ToComment());
+            return comment != null
+                ? Ok(comment.ToResponse())
+                : Problem();
         }
         
         /// <summary>
@@ -69,9 +72,12 @@ namespace MentorsBlog.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<CommentResponse>> Get([FromQuery] Guid postId)
+        public ActionResult<IEnumerable<CommentResponse>> Get([FromQuery, Required] Guid postId)
         {
-            return Ok(new List<CommentResponse>());
+            return Ok(_commentService
+                .Get(postId)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToResponse());
         }
 
         /// <summary>
@@ -95,16 +101,11 @@ namespace MentorsBlog.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<bool> Delete(Guid id)
+        public ActionResult<bool> Delete([FromRoute, Required] Guid id)
         {
-            var result = true;
-
-            if (!result)
-            {
-                return Problem();
-            }
-            
-            return Ok();
+            return _commentService.Delete(id) 
+                ? Ok()
+                : Problem();
         }
     }
 }

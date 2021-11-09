@@ -6,19 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using MentorsBlog.Application.Service.Interfaces;
+using MentorsBlog.Mappers;
 using Microsoft.AspNetCore.Http;
+
 #pragma warning disable 1570
 
-namespace MentorsBlog.Controllers
+namespace MentorsBlog.Controllers.V1
 {
     [Route("api/v1/post")]
     [ApiController]
     [Produces("application/json")]
     public class PostController : BlogControllerBase
     {
-        public PostController()
+        private readonly IPostService _postService;
+
+        public PostController(IPostService postService)
         {
-            //PostService.Init();
+            _postService = postService;
         }
 
         /// <summary>
@@ -49,16 +55,12 @@ namespace MentorsBlog.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<Guid> Create([FromBody, Required] RequestCreatePost request)
         {
-            var postId = Guid.NewGuid(); 
-            
-            if (postId == Guid.Empty)
-            {
-                return Problem();
-            }
-            
-            return CreatedAtAction(nameof(Get), new { id = Guid.NewGuid() });
+            var post = _postService.Create(request.ToPost());
+            return post != null
+                ? Ok(post)
+                : Problem();
         }
-        
+
         /// <summary>
         /// Search for posts
         /// </summary>
@@ -77,31 +79,11 @@ namespace MentorsBlog.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<PostResponse>> Search([FromQuery, NotNull] string searchData)
         {
-            return Ok(new List<PostResponse>());
+            return Ok(_postService
+                .Search(searchData)
+                .ToResponse());
         }
-        
-        /// <summary>
-        /// Get posts by pagination
-        /// </summary>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     GET /post?page=1&amp;count5
-        ///
-        /// </remarks>
-        /// <param name="page">Page</param>
-        /// <param name="count">Count of posts</param>
-        /// <returns>Pagination result</returns>
-        /// <response code="200">Returns a list of posts</response>
-        /// <response code="400">Invalid input data</response>
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<PostResponse>> Get([FromQuery, Required] int page, [FromQuery, Required] int count)
-        {
-            return Ok(new List<PostResponse>());
-        }
-        
+
         /// <summary>
         /// Get post by id
         /// </summary>
@@ -122,14 +104,35 @@ namespace MentorsBlog.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<PostResponse> Get([FromRoute, Required] Guid id)
         {
-            var post = new object();
+            var post = _postService.Get(id);
+            return post != null
+                ? Ok(post.ToResponse())
+                : NotFound();
+        }
 
-            if (post is null)
-            {
-                return NotFound();
-            }
-            
-            return Ok(new PostResponse());
+        /// <summary>
+        /// Get messages by pagination, sorted by descending order of publication date
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /post?page=1&amp;count5
+        ///
+        /// </remarks>
+        /// <param name="page">Page</param>
+        /// <param name="count">Count of posts</param>
+        /// <returns>Pagination result</returns>
+        /// <response code="200">Returns a list of posts</response>
+        /// <response code="400">Invalid input data</response>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<IEnumerable<PostResponse>> GetByPagination([FromQuery, Required] int page, [FromQuery, Required] int count)
+        {
+            return Ok(_postService
+                .Get(page, count)
+                .OrderByDescending(x => x.PublishDate)
+                .ToResponse());
         }
 
         /// <summary>
@@ -154,16 +157,12 @@ namespace MentorsBlog.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<PostResponse> Put([FromRoute, Required] Guid id, [FromBody, Required] RequestUpdatePost request)
+        public ActionResult<PostResponse> Update([FromRoute, Required] Guid id, [FromBody, Required] RequestUpdatePost request)
         {
-            var post = new object();
-
-            if (post is null)
-            {
-                return Problem();
-            }
-            
-            return Ok(new PostResponse());
+            var post = _postService.Update(request.ToPost(id));
+            return post != null 
+                ? Ok(post.ToResponse()) 
+                : Problem();
         }
 
         /// <summary>
@@ -189,14 +188,9 @@ namespace MentorsBlog.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult Delete([FromRoute, Required] Guid id)
         {
-            var result = true;
-
-            if (!result)
-            {
-                return Problem();
-            }
-            
-            return Ok();
+            return _postService.Delete(id) 
+                ? Ok()
+                : Problem();
         }
     }
 }

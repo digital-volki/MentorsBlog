@@ -5,7 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MentorsBlog.Application.Domain\MentorsBlog.Application.Domain.csproj" />
     <ProjectReference Include="..\MentorsBlog.Core.Common\MentorsBlog.Core.Common.csproj" />
+    <ProjectReference Include="..\MentorsBlog.Core.DataAccess\MentorsBlog.Core.DataAccess.csproj" />
+    <ProjectReference Include="..\MentorsBlog.Core.Web\MentorsBlog.Core.Web.csproj" />
   </ItemGroup>
 
 </Project>

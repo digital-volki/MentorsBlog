@@ -1,32 +1,36 @@
 version: "3"
 
 services:
-  db:
+  prod_db:
+    container_name: db_prod
     image: postgres
     restart: always
     ports:
-      - "5432:5432"
+      - "5440:5432"
     environment:
       POSTGRES_USER: blog_db_admin
-      POSTGRES_DB: blog_db
+      POSTGRES_DB: blog_db_prod
       POSTGRES_PASSWORD: 039240899e462c7BF8D8e0f708eeEFF13C93DEd4b5be5A86Ad245573ce6cC2c
     volumes:
-      - ~/volumes/blog_db:/var/lib/postgresql/data
+      - mentors_blog_db:/var/lib/postgresql/data
 
   web:
-    command: dotnet MentorsBlog.dll --environment=dev
-    volumes:
-      - ~/volumes/blog_static:/app/storage
+    container_name: base-api
+    command: dotnet MentorsBlog.dll --environment=prod
     environment:
-      ASPNETCORE_ENVIRONMENT: dev
+      ASPNETCORE_ENVIRONMENT: prod
     ports:
-      - "8070:80"
+      - "5000:80"
     restart: always
     depends_on: 
-      - db
+      - prod_db
     build:
       context: .
-      dockerfile: vtbbook/Dockerfile
+      dockerfile: MentorsBlog/Dockerfile
+    image: digital-volki.registry.jetbrains.space/p/mentorsblog/back/mentorsblog:latest
+
+volumes:
+  mentors_blog_db:
 
 networks:
   default:
