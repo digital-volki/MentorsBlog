@@ -2,7 +2,7 @@ version: "3"
 
 services:
   prod_db:
-    container_name: db_prod
+    container_name: blog_db
     image: postgres
     restart: always
     ports:
@@ -15,7 +15,7 @@ services:
       - mentors_blog_db:/var/lib/postgresql/data
 
   web:
-    container_name: base-api
+    container_name: blog-api
     command: dotnet MentorsBlog.dll --environment=prod
     environment:
       ASPNETCORE_ENVIRONMENT: prod
@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile: MentorsBlog/Dockerfile
-    image: digital-volki.registry.jetbrains.space/p/mentorsblog/back/mentorsblog:latest
+#    image: digital-volki.registry.jetbrains.space/p/mentorsblog/back/mentorsblog:latest
 
 volumes:
   mentors_blog_db:
