@@ -20,7 +20,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: prod
     ports:
-      - "5000:80"
+      - "5002:80"
     restart: always
     depends_on: 
       - prod_db
