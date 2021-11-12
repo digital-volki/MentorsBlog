@@ -73,7 +73,7 @@ namespace MentorsBlog.Application.Service
             {
                 return null;
             }
-            
+            post.PublishDate = DateTime.Now;
             var dbPost = _postDomain.Create(post.ToDbPost());
             return dbPost.ToPost();
         }
@@ -96,8 +96,7 @@ namespace MentorsBlog.Application.Service
         public IEnumerable<Post> Search(string searchData)
         {
             return _postDomain.Get(false)
-                .Where(x => x.Title.Contains(searchData))
-                .Where(x => x.Body.Contains(searchData))
+                .Where(x => x.Title.Contains(searchData) || x.Body.Contains(searchData) || x.Preview.Contains(searchData))
                 .AsEnumerable()
                 .ToPost();
         }

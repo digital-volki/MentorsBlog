@@ -16,7 +16,7 @@ services:
 
   web:
     container_name: blog-api
-    command: dotnet MentorsBlog.dll --environment=prod
+    command: dotnet MentorsBlog.dll
     environment:
       ASPNETCORE_ENVIRONMENT: prod
     ports:

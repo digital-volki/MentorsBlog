@@ -6,6 +6,7 @@ namespace MentorsBlog.Core.Common
     public static class EnvironmentGetter
     {
         private const string DefaultEnvironmentName = "ASPNETCORE_ENVIRONMENT";
+        private const string DefaultEnvironmentKey = Environments.Production;
 
         private static readonly Dictionary<string, string> EnvValue = new()
         {
@@ -13,9 +14,11 @@ namespace MentorsBlog.Core.Common
             { Environments.ProductionRemote, nameof(Environments.ProductionRemote) },
         };
 
-        public static string Get(string key = Environments.Production)
+        public static string Get(string key = null)
         {
-            var envVar = Environment.GetEnvironmentVariable(DefaultEnvironmentName) ?? key;
+            var envVar = string.IsNullOrEmpty(key) 
+                ? Environment.GetEnvironmentVariable(DefaultEnvironmentName) 
+                : key;
 
             return EnvValue.ContainsKey(envVar) 
                 ? EnvValue[envVar]

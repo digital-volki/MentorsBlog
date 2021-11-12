@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace MentorsBlog.Core.Web.Exceptions
@@ -9,10 +10,12 @@ namespace MentorsBlog.Core.Web.Exceptions
     public class ExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionHandlerMiddleware> _logger;
 
-        public ExceptionHandlerMiddleware(RequestDelegate next)
+        public ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
@@ -27,8 +30,10 @@ namespace MentorsBlog.Core.Web.Exceptions
             }
         }
 
-        private static Task HandleExceptionMessageAsync(HttpContext context, Exception exception)
+        private Task HandleExceptionMessageAsync(HttpContext context, Exception exception)
         {
+            _logger.Log(LogLevel.Error, exception, exception.Message);
+            
             context.Response.ContentType = "application/json";
             const int statusCode = (int)HttpStatusCode.InternalServerError;
             var result = JsonConvert.SerializeObject(new

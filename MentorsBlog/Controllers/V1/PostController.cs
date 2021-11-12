@@ -81,6 +81,7 @@ namespace MentorsBlog.Controllers.V1
         {
             return Ok(_postService
                 .Search(searchData)
+                .OrderByDescending(x => x.PublishDate)
                 .ToResponse());
         }
 
@@ -111,7 +112,7 @@ namespace MentorsBlog.Controllers.V1
         }
 
         /// <summary>
-        /// Get messages by pagination, sorted by descending order of publication date
+        /// Get posts by pagination, sorted by descending order of publication date
         /// </summary>
         /// <remarks>
         /// Sample request:

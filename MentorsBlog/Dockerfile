@@ -6,7 +6,7 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
-WORKDIR /src
+WORKDIR "/src"
 COPY ["MentorsBlog/MentorsBlog.csproj", "MentorsBlog/"]
 COPY ["MentorsBlog.Core.Common/MentorsBlog.Core.Common.csproj", "MentorsBlog.Core.Common/"]
 COPY ["MentorsBlog.Core.Web/MentorsBlog.Core.Web.csproj", "MentorsBlog.Core.Web/"]

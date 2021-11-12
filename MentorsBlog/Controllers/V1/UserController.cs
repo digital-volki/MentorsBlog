@@ -78,7 +78,7 @@ namespace MentorsBlog.Controllers.V1
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<string> Registration([FromBody, Required] RequestRegistration request)
         {
-            if (!_userService.IsUserExist(request.Nickname))
+            if (_userService.IsUserExist(request.Nickname))
             {
                 return Conflict();
             }

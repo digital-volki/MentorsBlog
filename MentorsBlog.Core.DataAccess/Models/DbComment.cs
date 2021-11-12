@@ -19,7 +19,7 @@ namespace MentorsBlog.Core.DataAccess.Models
         
         [ForeignKey(nameof(ParentId))]
         public Guid? ParentId { get; set; }
-        public DbComment Parent { get; set; }
+        public virtual DbComment Parent { get; set; }
         
         [Required]
         [MaxLength(100)]

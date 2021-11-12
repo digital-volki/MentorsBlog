@@ -60,6 +60,7 @@ namespace MentorsBlog
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -159,6 +160,10 @@ namespace MentorsBlog
         
         private void ServicesRegistration(IServiceCollection services)
         {
+            services
+                .AddSingleton<JwtTokenGenerator>()
+                .AddSingleton<Authenticator>();
+            
             services
                 .AddTransient<IPostService, PostService>()
                 .AddTransient<ICommentService, CommentService>()
