@@ -25,6 +25,11 @@ namespace MentorsBlog.Models.Responses
         public string Body { get; init; }
         
         /// <summary>
+        /// The link to image of the post
+        /// </summary>
+        public string Image { get; init; }
+        
+        /// <summary>
         /// Date the post was created
         /// </summary>
         public DateTime PublishDate { get; init; }

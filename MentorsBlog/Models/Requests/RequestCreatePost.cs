@@ -24,5 +24,12 @@ namespace MentorsBlog.Models.Requests
         [Required]
         [MaxLength(20000)]
         public string Body { get; init; }
+        
+        /// <summary>
+        /// The link to image of the post
+        /// </summary>
+        [Required]
+        [MaxLength(500)]
+        public string Image { get; init; }
     }
 }

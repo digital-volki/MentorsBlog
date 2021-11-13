@@ -26,6 +26,9 @@ namespace MentorsBlog.Core.DataAccess.Models
         public string Body { get; set; }
         
         [Required]
+        public string Image { get; set; }
+        
+        [Required]
         public DateTime PublishDate { get; set; }
     }
 }

@@ -38,6 +38,7 @@ namespace MentorsBlog.Controllers.V1
         ///        "Title": "How create post?",
         ///        "Preview": "This is the body",
         ///        "Body": "This is the body of the post"
+        ///        "Image": "http://yanxed.ru/image/jf20rpihf13r"
         ///     }
         ///
         /// </remarks>

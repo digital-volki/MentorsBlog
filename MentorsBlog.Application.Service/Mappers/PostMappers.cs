@@ -17,6 +17,7 @@ namespace MentorsBlog.Application.Service.Mappers
                 Title = source.Title,
                 Preview = source.Preview,
                 Body = source.Body,
+                Image = source.Image,
                 PublishDate = source.PublishDate,
             };
         }
@@ -33,6 +34,7 @@ namespace MentorsBlog.Application.Service.Mappers
                 Title = source.Title,
                 Preview = source.Preview,
                 Body = source.Body,
+                Image = source.Image,
                 PublishDate = source.PublishDate,
             };
         }
