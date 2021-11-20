@@ -44,15 +44,15 @@ namespace MentorsBlog.Controllers.V1
         /// </remarks>
         /// <param name="request">Incoming data for creating a post</param>
         /// <returns>The id of the created post</returns>
-        /// <response code="201">Returns the id of the created post</response>
+        /// <response code="200">Returns the id of the created post</response>
         /// <response code="400">Invalid input data</response>
-        /// <response code="403">No access</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="500">Failed to create post</response>
         [HttpPost]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<Guid> Create([FromBody, Required] RequestCreatePost request)
         {
@@ -151,13 +151,13 @@ namespace MentorsBlog.Controllers.V1
         /// <returns>Updated post</returns>
         /// <response code="200">Returns updated post</response>
         /// <response code="400">Invalid input data</response>
-        /// <response code="403">No access</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="500">Failed to update post</response>
         [HttpPut("{id:guid}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<PostResponse> Update([FromRoute, Required] Guid id, [FromBody, Required] RequestUpdatePost request)
         {
@@ -180,13 +180,13 @@ namespace MentorsBlog.Controllers.V1
         /// <returns>Success executable</returns>
         /// <response code="200">Returns the result success of execute</response>
         /// <response code="400">Invalid post id</response>
-        /// <response code="403">No access</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="500">Failed to delete post</response>
         [HttpDelete("{id:guid}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult Delete([FromRoute, Required] Guid id)
         {

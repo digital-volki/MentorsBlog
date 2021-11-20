@@ -93,13 +93,13 @@ namespace MentorsBlog.Controllers.V1
         /// <returns>Success executable</returns>
         /// <response code="200">Returns the result success of execute</response>
         /// <response code="400">Invalid comment id</response>
-        /// <response code="403">No access</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="500">Failed to delete comment</response>
         [HttpDelete("{id:guid}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<bool> Delete([FromRoute, Required] Guid id)
         {
