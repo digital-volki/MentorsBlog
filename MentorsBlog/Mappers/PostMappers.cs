@@ -17,7 +17,8 @@ namespace MentorsBlog.Mappers
             {
                 Title = source.Title,
                 Preview = source.Preview,
-                Body = source.Body
+                Body = source.Body,
+                Image = source.Image
             };
         }
         
@@ -28,7 +29,8 @@ namespace MentorsBlog.Mappers
                 Id = id,
                 Title = source.Title,
                 Preview = source.Preview,
-                Body = source.Body
+                Body = source.Body,
+                Image = source.Image
             };
         }
 
